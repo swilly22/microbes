@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Microbes</title>	
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<style>
+		body {
+			background:#000;
+			color:#fff;
+			padding:0;
+			margin:0;
+			overflow:hidden;
+			font-family:georgia;
+			text-align:center;
+		}
+	</style>
+
+	<script id="vertShader" type="shader">
+		varying vec2 vUv;
+		
+		void main() {
+		    vUv = uv;
+		    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0 );
+		}
+
+	</script>
+
+	<script id="fragShader" type="shader">
+		
+		precision highp float;
+		varying vec2 vUv;
+		uniform sampler2D texture;
+		uniform vec4 color;
+		uniform float brightness;
+
+		void main(void) {
+			// make a copy of given color.
+			vec4 fColor = color;
+
+			// sample texture.
+			vec4 tex = texture2D(texture, vUv);
+
+			// add texture value to given color.
+			fColor += tex;
+
+			// (0.5,0.5) is texture center.
+			vec2 center = vec2(0.5, 0.5);
+
+			// compute fragment distance from center and normalize it.
+			float distance = length(center - vUv);
+
+			// intensity should get stronger as we get close to the center.
+		    float intensity = brightness * smoothstep(0.0, 0.25, 0.5 - distance);
+
+		    // update color with intensity.
+		    fColor += intensity;
+		    
+		    // set final color.
+		    gl_FragColor = fColor;
+		}
+
+	</script>
+
+	<script type="text/javascript" src="bundle.js"></script>
+</head>
+<body>
+	<div id="container" style="width:100%; height:100%;">
+</body>
+
+<script type="text/javascript">
+	run();
+</script>
+</html>
